@@ -6,7 +6,7 @@ set -e
 # Variables
 REPO_URL="https://github.com/vuejs/v2.vuejs.org.git"
 APP_DIR="/tmp/vuejs-docs"
-DOCKER_COMPOSE_FILE="/tmp/docker-compose.yml"
+DOCKER_COMPOSE_FILE="$APP_DIR/docker-compose.yml"
 
 # Update package list and install prerequisites
 echo "Updating package list and installing prerequisites..."
@@ -19,10 +19,12 @@ curl -fsSL https://get.docker.com -o get-docker.sh
 sh get-docker.sh
 rm get-docker.sh
 
+# Install Docker Compose
 echo "Installing Docker Compose..."
 curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 chmod +x /usr/local/bin/docker-compose
 
+# Clone the Vue.js v2 docs repository
 echo "Cloning Vue.js v2 documentation repository..."
 git clone "$REPO_URL" "$APP_DIR"
 cd "$APP_DIR"
@@ -32,7 +34,7 @@ cat > "$DOCKER_COMPOSE_FILE" <<EOF
 services:
   app:
     build:
-      context: .  # Use the cloned repo directory
+      context: /tmp/vuejs-docs
       dockerfile: docker/app/Dockerfile
     volumes:
       - ./src:/app/src
@@ -42,7 +44,7 @@ services:
       - NODE_ENV=development
   nginx:
     build:
-      context: /app  # Nginx Dockerfile is still in the project root
+      context: /tmp/vuejs-docs
       dockerfile: docker/nginx/Dockerfile
     ports:
       - "80:80"
@@ -52,9 +54,11 @@ services:
       - app
 EOF
 
+# Copy Docker files from the project repo
 echo "Setting up Docker environment..."
 cp -r /app/docker .
 
+# Build and start the containers
 echo "Building and starting Docker containers..."
 docker-compose up -d --build
 echo "Development environment is ready! Access it at http://localhost"
