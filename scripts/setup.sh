@@ -32,7 +32,7 @@ cat > "$DOCKER_COMPOSE_FILE" <<EOF
 services:
   app:
     build:
-      context: .
+      context: /app  # Use the project root as context
       dockerfile: docker/app/Dockerfile
     volumes:
       - ./src:/app/src
@@ -42,7 +42,7 @@ services:
       - NODE_ENV=development
   nginx:
     build:
-      context: .
+      context: /app  # Use the project root as context
       dockerfile: docker/nginx/Dockerfile
     ports:
       - "80:80"
