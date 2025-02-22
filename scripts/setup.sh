@@ -29,7 +29,6 @@ cd "$APP_DIR"
 
 # Create Docker Compose file
 cat > "$DOCKER_COMPOSE_FILE" <<EOF
-version: '3.8'
 services:
   app:
     build:
@@ -55,3 +54,7 @@ EOF
 
 echo "Setting up Docker environment..."
 cp -r /app/docker .
+
+echo "Building and starting Docker containers..."
+docker-compose up -d --build
+echo "Development environment is ready! Access it at http://localhost"
