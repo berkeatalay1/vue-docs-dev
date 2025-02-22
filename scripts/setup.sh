@@ -3,9 +3,14 @@
 # Exit on any error
 set -e
 
-# Variables
-REPO_URL="https://github.com/vuejs/v2.vuejs.org.git"
-APP_DIR="/tmp/vuejs-docs"
+# Source the .env file
+if [ -f "/app/.env" ]; then
+  source "/app/.env"
+else
+  echo "Error: .env file not found in /app"
+  exit 1
+fi
+
 DOCKER_COMPOSE_FILE="$APP_DIR/docker-compose.yml"
 
 # Update package list and install prerequisites
@@ -26,39 +31,41 @@ chmod +x /usr/local/bin/docker-compose
 
 # Clone the Vue.js v2 docs repository
 echo "Cloning Vue.js v2 documentation repository..."
-git clone "$REPO_URL" "$APP_DIR"
+git clone "$GIT_URL" "$APP_DIR"
 cd "$APP_DIR"
+
+# Copy Docker files from the project repo
+echo "Setting up Docker environment..."
+cp -r /app/docker .
 
 # Create Docker Compose file
 cat > "$DOCKER_COMPOSE_FILE" <<EOF
 services:
   app:
     build:
-      context: /tmp/vuejs-docs
+      context: $APP_DIR
       dockerfile: docker/app/Dockerfile
     volumes:
       - ./src:/app/src
     working_dir: /app
-    command: npm run serve
+    ports:
+      - "$DEV_PORT:$DEV_PORT"
     environment:
       - NODE_ENV=development
   nginx:
     build:
-      context: /tmp/vuejs-docs
+      context: $APP_DIR
       dockerfile: docker/nginx/Dockerfile
+      args:
+        NGINX_PORT: $NGINX_PORT
+        DEV_PORT: $DEV_PORT
     ports:
-      - "80:80"
-    volumes:
-      - ./dist:/usr/share/nginx/html
+      - "$NGINX_PORT:$NGINX_PORT"
     depends_on:
       - app
 EOF
 
-# Copy Docker files from the project repo
-echo "Setting up Docker environment..."
-cp -r /app/docker .
-
 # Build and start the containers
 echo "Building and starting Docker containers..."
 docker-compose up -d --build
-echo "Development environment is ready! Access it at http://localhost"
+echo "Development environment is ready! Access it at http://localhost:$NGINX_PORT"

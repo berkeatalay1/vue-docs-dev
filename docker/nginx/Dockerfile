@@ -1,5 +1,3 @@
 FROM nginx:alpine
-
-COPY ./dist /usr/share/nginx/html
-
-EXPOSE 80
+COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
+EXPOSE 4001
