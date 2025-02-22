@@ -54,4 +54,4 @@ services:
 EOF
 
 echo "Setting up Docker environment..."
-cp -r ../docker .
+cp -r /app/docker .
