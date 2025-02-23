@@ -1,7 +1,7 @@
 FROM nginx:alpine
 
-# Install openssl for certificate generation
-RUN apk add --no-cache openssl
+# Install openssl and its development libraries
+RUN apk add --no-cache openssl openssl-dev libressl-dev
 
 # Remove default nginx configuration
 RUN rm /etc/nginx/conf.d/default.conf
