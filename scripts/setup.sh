@@ -118,6 +118,19 @@ else
     echo "Source directory already exists, skipping clone..."
 fi
 
+# Generate SSL certificates if they don't exist
+echo "Checking SSL certificates..."
+if [ ! -f "docker/nginx/certs/nginx-selfsigned.crt" ]; then
+    echo "Generating SSL certificates..."
+    mkdir -p docker/nginx/certs
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+        -keyout docker/nginx/certs/nginx-selfsigned.key \
+        -out docker/nginx/certs/nginx-selfsigned.crt \
+        -subj "/C=US/ST=State/L=City/O=Organization/CN=localhost"
+else
+    echo "SSL certificates already exist, skipping generation..."
+fi
+
 # Build and start containers
 echo "Building and starting containers..."
 if command_exists docker-compose; then
@@ -150,10 +163,19 @@ else
 fi
 
 echo "Setup completed successfully!"
-echo "You can access:"
-echo "- Development server at http://localhost:${DEV_PORT}"
-echo "- Production build at http://localhost:${NGINX_PORT}"
+echo "You can access the documentation in multiple ways:"
+echo "1. Development Server (Hot Reload):"
+echo "   http://localhost:${DEV_PORT}"
+echo
+echo "2. Production Build:"
+echo "   - HTTP:  http://localhost:${NGINX_PORT}"
+echo "   - HTTPS: https://localhost:${NGINX_SSL_PORT}"
+echo
+echo "Note: When accessing via HTTPS, you may see a security warning"
+echo "      because we're using a self-signed certificate."
+echo "      This is normal for local development."
 
 if [ "$OS" == "linux" ] && [ "$(groups | grep -c docker)" -eq 0 ]; then
+    echo
     echo "NOTE: You may need to log out and log back in for Docker permissions to take effect."
 fi 
