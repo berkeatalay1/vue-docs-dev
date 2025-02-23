@@ -52,8 +52,11 @@ install_macos_deps() {
 
 # Install dependencies for Ubuntu/Debian
 install_debian_deps() {
-    echo "Updating package list..."
-    sudo apt-get update
+    # Only update package list if git or docker needs to be installed
+    if ! command_exists git || ! command_exists docker; then
+        echo "Updating package list..."
+        sudo apt-get update
+    fi
 
     if ! command_exists git; then
         echo "Installing Git..."
@@ -119,8 +122,28 @@ fi
 echo "Building and starting containers..."
 if command_exists docker-compose; then
     docker-compose up --build -d
+    
+    # Wait for container to be ready
+    echo "Waiting for containers to be ready..."
+    sleep 5
+    
+    # Check if node_modules exists in the container
+    if ! docker-compose exec app test -d /app/node_modules; then
+        echo "Installing dependencies in the container..."
+        docker-compose exec app npm install
+    fi
 elif command_exists docker && docker compose version >/dev/null 2>&1; then
     docker compose up --build -d
+    
+    # Wait for container to be ready
+    echo "Waiting for containers to be ready..."
+    sleep 5
+    
+    # Check if node_modules exists in the container
+    if ! docker compose exec app test -d /app/node_modules; then
+        echo "Installing dependencies in the container..."
+        docker compose exec app npm install
+    fi
 else
     echo "Docker Compose not found. Please install Docker Compose and try again."
     exit 1

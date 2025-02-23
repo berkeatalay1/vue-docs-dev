@@ -9,6 +9,7 @@ services:
         - GIT_URL=${GIT_URL}
     volumes:
       - ./src:/app:cached
+      - /app/node_modules
       - static_content:/app/dist
     ports:
       - "${DEV_PORT}:4000"
