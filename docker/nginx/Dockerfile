@@ -8,7 +8,7 @@ RUN apt-get update && \
 # Remove default nginx configuration
 RUN rm /etc/nginx/conf.d/default.conf
 
-# Copy our custom nginx configuration
+# Copy nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
 
 # Create directory for certificates and add dummy certs if not provided
