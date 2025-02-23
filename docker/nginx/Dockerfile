@@ -1,7 +1,9 @@
-FROM nginx:alpine
+FROM nginx:1.24
 
-# Install openssl and its development libraries
-RUN apk add --no-cache openssl openssl-dev libressl-dev
+# Install openssl
+RUN apt-get update && \
+    apt-get install -y openssl && \
+    rm -rf /var/lib/apt/lists/*
 
 # Remove default nginx configuration
 RUN rm /etc/nginx/conf.d/default.conf
