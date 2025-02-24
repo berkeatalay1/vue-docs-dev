@@ -1,41 +1,45 @@
 services:
+  # Development server for Vue.js application
   app:
     build:
       context: .
       dockerfile: docker/app/Dockerfile
       args:
-        - GIT_URL=${GIT_URL}
+        - GIT_URL=${GIT_URL}  # Git repository URL for cloning documentation
     volumes:
-      - ./src:/app:cached
-      - /app/node_modules
-      - static_content:/app/dist
+      - ./src:/app:cached     # Mount source code for hot-reload
+      - /app/node_modules     # Anonymous volume for node_modules
+      - static_content:/app/dist  # Shared volume for built files
     ports:
-      - "${DEV_PORT}:4000"
+      - "${DEV_PORT}:4000"    # Development server port
     environment:
       - NODE_ENV=development
       - GIT_URL=${GIT_URL}
     networks:
       - app-network
 
+  # Nginx server for static content and SSL termination
   nginx:
     build:
       context: ./docker/nginx
       dockerfile: Dockerfile
     ports:
-      - "${NGINX_PORT}:80"
-      - "${NGINX_SSL_PORT}:443"
-      - "${APP_SSL_PORT}:4443"
+      - "${NGINX_PORT}:80"      # HTTP port for static content
+      - "${NGINX_SSL_PORT}:443" # HTTPS port for static content
+      - "${APP_SSL_PORT}:4443"  # HTTPS port for development server
     volumes:
-      - static_content:/usr/share/nginx/html:ro
-      - ./docker/nginx/certs:/etc/nginx/certs:ro
+      - static_content:/usr/share/nginx/html:ro  # Mount built files from app container
+      - ./docker/nginx/certs:/etc/nginx/certs:ro # SSL certificates
     depends_on:
-      - app
+      - app  # Ensure app container starts first
     networks:
       - app-network
 
+# Docker network for container communication
 networks:
   app-network:
     driver: bridge
 
+# Persistent volumes
 volumes:
-  static_content:
+  static_content:  # Shared volume between app and nginx for built files
