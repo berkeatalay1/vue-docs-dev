@@ -15,7 +15,9 @@ git clone https://github.com/berkeatalay1/vue-docs-dev.git
 cd vue-docs-dev
 ```
 
-2. Run the automated setup script:
+2. (Optional) If you plan to make changes to the documentation, fork the Vue.js documentation repository and update the GIT_URL in `.env`:
+
+3. Run the automated setup script:
 ```bash
 ./scripts/setup.sh
 ```
@@ -167,4 +169,3 @@ docker-compose restart nginx
 # Fix source directory permissions
 sudo chown -R $USER:$USER src/
 ```
-
