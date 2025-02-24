@@ -11,8 +11,8 @@ This repository contains a containerized development environment for the Vue.js 
 
 1. Clone this repository:
 ```bash
-git clone <your-repo-url>
-cd <repo-name>
+git clone https://github.com/berkeatalay1/vue-docs-dev.git
+cd vue-docs-dev
 ```
 
 2. Run the automated setup script:
